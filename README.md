@@ -1,5 +1,11 @@
 # Pyarmor Static Unpack One-Shot Tool
 
+[![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/Lil-House/Pyarmor-Static-Unpack-1shot/total)](https://github.com/Lil-House/Pyarmor-Static-Unpack-1shot/releases)
+[![GitHub Repo stars](https://img.shields.io/github/stars/Lil-House/Pyarmor-Static-Unpack-1shot?style=flat)](https://github.com/Lil-House/Pyarmor-Static-Unpack-1shot/stargazers)
+[![GitHub Release](https://img.shields.io/github/v/release/Lil-House/Pyarmor-Static-Unpack-1shot)](https://github.com/Lil-House/Pyarmor-Static-Unpack-1shot/releases)
+[![GitHub commits since latest release](https://img.shields.io/github/commits-since/Lil-House/Pyarmor-Static-Unpack-1shot/latest)](https://github.com/Lil-House/Pyarmor-Static-Unpack-1shot/commits/main/)
+[![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/Lil-House/Pyarmor-Static-Unpack-1shot/regtest.yml?branch=main&label=test)](https://github.com/Lil-House/Pyarmor-Static-Unpack-1shot/actions)
+
 [Pyarmor](https://github.com/dashingsoft/pyarmor) is a popular tool to protect Python source code. It turns Python scripts into binary data, which can be regarded as an encrypted variant of pyc files. They can be decrypted by a shared library (pyarmor_runtime) and then executed by Python interpreter.
 
 This project aims to convert armored data back to bytecode assembly and (experimentally) source code. We forked the awesome [Decompyle++](https://github.com/zrax/pycdc) (aka pycdc), and added some processes on it like modifying abstract syntax tree.
@@ -24,7 +30,7 @@ You don't need to execute the encrypted script. We decrypt them using the same a
 
 ### Universal
 
-Currently we are trying to support Pyarmor 8.0 to 9.1.9, Python 3.7 - 3.13, on all operating systems, with obfuscating options as many as possible. (However, we only have limited tests.)
+Currently we are trying to support Pyarmor 8.0 to 9.2.x (latest), Python 3.7 - 3.13, on all operating systems, with obfuscating options as many as possible. (However, we only have limited tests.)
 
 You can run this tool in any environment, no need to be the same with obfuscated scripts or runtime.
 
