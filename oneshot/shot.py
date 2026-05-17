@@ -84,6 +84,7 @@ async def run_pycdc_async(
     *,
     unit_buf: bool = False,
     no_banner: bool = False,
+    unstable_try_blocks: bool = False,
     unhide_all_noisy_logs: bool = False,
     unhide_unsupported_opcode_errors: bool = False,
     unhide_stack_warnings: bool = False,
@@ -95,6 +96,8 @@ async def run_pycdc_async(
             options.append("--unitbuf")
         if no_banner:
             options.append("--no-banner")
+        if unstable_try_blocks:
+            options.append("--unstable-try-blocks")
         process = await asyncio.create_subprocess_exec(
             exe_path,
             *options,
@@ -119,6 +122,7 @@ async def run_pycdc_async(
                     path_for_log,
                     unit_buf=True,
                     no_banner=no_banner,
+                    unstable_try_blocks=unstable_try_blocks,
                     unhide_all_noisy_logs=unhide_all_noisy_logs,
                     unhide_unsupported_opcode_errors=unhide_unsupported_opcode_errors,
                     unhide_stack_warnings=unhide_stack_warnings,
@@ -329,6 +333,7 @@ async def decrypt_process_async(
                     seq_file_path,
                     relative_path,
                     no_banner=args.no_banner,
+                    unstable_try_blocks=args.unstable_try_blocks,
                     unhide_all_noisy_logs=args.unhide_all_noisy_logs,
                     unhide_unsupported_opcode_errors=args.unhide_unsupported_opcode_errors,
                     unhide_stack_warnings=args.unhide_stack_warnings,
@@ -447,6 +452,11 @@ def parse_args():
     parser.add_argument(
         "--export-raw-data",
         help="Save data found in source files as-is. For debugging or manual analysis purposes.",
+        action="store_true",
+    )
+    parser.add_argument(
+        "--unstable-try-blocks",
+        help="Emit `try:` blocks for Python >=3.11. May introduce excessive indentation levels, and decrease readability significantly.",
         action="store_true",
     )
     parser.add_argument(

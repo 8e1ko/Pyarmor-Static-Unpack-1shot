@@ -3,6 +3,8 @@
 
 #include "ASTNode.h"
 
+extern bool unstableTryBlocksEnabled;
+
 PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod);
 void print_src(PycRef<ASTNode> node, PycModule* mod, std::ostream& pyc_output);
 

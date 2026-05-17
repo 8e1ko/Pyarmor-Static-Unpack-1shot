@@ -25,6 +25,8 @@
 
 const char* VERSION = "v0.4.0";
 
+bool unstableTryBlocksEnabled = false;
+
 #ifdef _WIN32
 
 // Windows: Use SEH/UEF; prefer calling only Win32 APIs
@@ -119,6 +121,8 @@ int main(int argc, char* argv[])
             unitbuf = true;
         } else if (strcmp(argv[arg], "--no-banner") == 0) {
             banner = false;
+        } else if (strcmp(argv[arg], "--unstable-try-blocks") == 0) {
+            unstableTryBlocksEnabled = true;
         } else if (argv[arg][0] == '-') {
             fprintf(stderr, "Error: Unrecognized argument %s\n", argv[arg]);
             return 1;

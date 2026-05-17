@@ -292,6 +292,11 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
         fprintf(stderr, "\n");
 #endif
 
+        // BEGIN ONESHOT TEMPORARY PATCH
+        // Excessive indentation levels in try/except blocks decrease readability
+        if (unstableTryBlocksEnabled) {
+        // END ONESHOT PATCH
+
         while (next_exception_entry < exception_entries.size()
                 && exception_entries[next_exception_entry].start_offset < pos) {
             next_exception_entry++;
@@ -369,6 +374,10 @@ PycRef<ASTNode> BuildFromCode(PycRef<PycCode> code, PycModule* mod)
                 curblock->append(cont.cast<ASTNode>());
             }
         }
+
+        // BEGIN ONESHOT TEMPORARY PATCH
+        }
+        // END ONESHOT PATCH
 
         curpos = pos;
         bc_next(source, mod, opcode, operand, pos);
