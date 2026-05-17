@@ -5,13 +5,16 @@ on:
   push:
     branches: [main, update-tests]
 
+permissions: {}
+
 jobs:
   regtest:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           path: project
+          persist-credentials: false
 
       - name: Commit Message
         id: commit_message
@@ -30,7 +33,7 @@ jobs:
           cmake --install .
 
       - name: Checkout regtest repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           repository: Lil-Ran/armorshot-regtest
           token: ${{ secrets.REGTEST_PAT }}
@@ -38,6 +41,7 @@ jobs:
           fetch-depth: 1
           lfs: true
           submodules: true
+          persist-credentials: true # need to push changes back to the regtest repository
 
       - name: Run shot.py and check for changes
         working-directory: ./regtest
@@ -53,11 +57,10 @@ jobs:
           fi
 
       - name: Commit and push changes
-        if: ${{
+        if: >
           steps.commit_message.outputs.message &&
           (hashFiles('regtest/**') != '') &&
           (contains(steps.commit_message.outputs.message, 'update tests'))
-          }}
         uses: EndBug/add-and-commit@a94899bca583c204427a224a7af87c02f9b325d5 # v9.1.4
         with:
           cwd: ./regtest
