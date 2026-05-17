@@ -23,7 +23,7 @@
 
 #include "ASTree.h"
 
-const char* VERSION = "v0.3.0";
+const char* VERSION = "v0.4.0";
 
 #ifdef _WIN32
 
@@ -102,13 +102,18 @@ int main(int argc, char* argv[])
         } else if (strcmp(argv[arg], "--show-caches") == 0) {
             disasm_flags |= Pyc::DISASM_SHOW_CACHES;
         } else if (strcmp(argv[arg], "--help") == 0 || strcmp(argv[arg], "-h") == 0) {
+            fputs("This native executable is not for end users.\nYou should use the Python script `shot.py` instead.\n\n", stderr);
             fprintf(stderr, "Usage:  %s [options] input.1shot.seq\n\n", argv[0]);
             fputs("Options:\n", stderr);
             fputs("  --pycode-extra Show extra fields in PyCode object dumps\n", stderr);
-            fputs("  --show-caches  Don't suprress CACHE instructions in Python 3.11+ disassembly\n", stderr);
+            fputs("  --show-caches  Don't suppress CACHE instructions in Python 3.11+ disassembly\n", stderr);
             fputs("  --unitbuf      Set output streams to be unbuffered\n", stderr);
             fputs("  --no-banner    Don't output banner\n", stderr);
+            fputs("  --version      Show version information and then exit\n", stderr);
             fputs("  --help         Show this help text and then exit\n", stderr);
+            return 0;
+        } else if (strcmp(argv[arg], "--version") == 0 || strcmp(argv[arg], "-v") == 0) {
+            puts(VERSION);
             return 0;
         } else if (strcmp(argv[arg], "--unitbuf") == 0) {
             unitbuf = true;
@@ -127,7 +132,8 @@ int main(int argc, char* argv[])
     }
 
     if (!infile) {
-        fputs("No input file specified\n", stderr);
+        fputs("This native executable is not for end users.\nYou should use the Python script `shot.py` instead.\n\n", stderr);
+        fputs("No input file specified.\n", stderr);
         return 1;
     }
 

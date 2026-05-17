@@ -7,6 +7,7 @@ import traceback
 import platform
 import locale
 from typing import Dict, List, Set, Tuple
+import sys
 
 try:
     from colorama import init, Fore, Style  # type: ignore
@@ -25,6 +26,9 @@ except ImportError:
 from detect import detect_process
 from runtime import RuntimeInfo
 from util import dword, bytes_sub
+
+
+__version__ = "0.4.0"
 
 
 # Initialize colorama
@@ -80,9 +84,9 @@ async def run_pycdc_async(
     *,
     unit_buf: bool = False,
     no_banner: bool = False,
-    show_all: bool = False,
-    show_err_opcode: bool = False,
-    show_warn_stack: bool = False,
+    unhide_all_noisy_logs: bool = False,
+    unhide_unsupported_opcode_errors: bool = False,
+    unhide_stack_warnings: bool = False,
 ):
     logger = logging.getLogger("shot")
     try:
@@ -115,9 +119,9 @@ async def run_pycdc_async(
                     path_for_log,
                     unit_buf=True,
                     no_banner=no_banner,
-                    show_all=show_all,
-                    show_err_opcode=show_err_opcode,
-                    show_warn_stack=show_warn_stack,
+                    unhide_all_noisy_logs=unhide_all_noisy_logs,
+                    unhide_unsupported_opcode_errors=unhide_unsupported_opcode_errors,
+                    unhide_stack_warnings=unhide_stack_warnings,
                 )
                 # do not log anything because it will be logged in the retried call
                 return
@@ -129,10 +133,10 @@ async def run_pycdc_async(
                     "Warning: block stack is not empty",
                 )
             ):
-                if show_warn_stack or show_all:
+                if unhide_stack_warnings or unhide_all_noisy_logs:
                     logger.warning(f"PYCDC: {line} ({path_for_log})")
             elif line.startswith("Unsupported opcode:"):
-                if show_err_opcode or show_all:
+                if unhide_unsupported_opcode_errors or unhide_all_noisy_logs:
                     logger.error(f"PYCDC: {line} ({path_for_log})")
             elif line.startswith(
                 (
@@ -143,7 +147,7 @@ async def run_pycdc_async(
                     "Access violation caught",
                 )
             ):  # annoying wont-fix errors
-                if show_all:
+                if unhide_all_noisy_logs:
                     logger.error(f"PYCDC: {line} ({path_for_log})")
             else:
                 logger.error(f"PYCDC: {line} ({path_for_log})")
@@ -325,9 +329,9 @@ async def decrypt_process_async(
                     seq_file_path,
                     relative_path,
                     no_banner=args.no_banner,
-                    show_all=args.show_all,
-                    show_err_opcode=args.show_err_opcode,
-                    show_warn_stack=args.show_warn_stack,
+                    unhide_all_noisy_logs=args.unhide_all_noisy_logs,
+                    unhide_unsupported_opcode_errors=args.unhide_unsupported_opcode_errors,
+                    unhide_stack_warnings=args.unhide_stack_warnings,
                 )
 
             except Exception as e:
@@ -405,65 +409,75 @@ def get_platform_executable(specified: str) -> str:
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description="Pyarmor Static Unpack 1 Shot Entry")
+    parser = argparse.ArgumentParser(description="Pyarmor Static Unpack One-Shot Tool")
     parser.add_argument(
         "directory",
-        help='the "root" directory of obfuscated scripts',
+        help='The "root" directory of obfuscated scripts.',
         type=str,
     )
     parser.add_argument(
         "-r",
         "--runtime",
-        help="path to pyarmor_runtime[.pyd|.so|.dylib]",
+        help="Path to pyarmor_runtime[.pyd|.so|.dylib] that matches the obfuscated scripts. Only needed when the runtime file cannot be found automatically, or when the input is a single file. See README.md for what it is.",
         type=str,  # argparse.FileType('rb'),
     )
     parser.add_argument(
         "-o",
         "--output-dir",
-        help="save output files in another directory instead of in-place, with folder structure remain unchanged",
+        help="Save output files in another directory instead of in-place, with folder structure remain unchanged.",
         type=str,
     )
     parser.add_argument(
-        "--export-raw-data",
-        help="save data found in source files as-is",
-        action="store_true",
-    )
-    parser.add_argument(
-        "--show-all",
-        help="show all pycdc errors and warnings",
-        action="store_true",
-    )
-    parser.add_argument(
-        "--show-err-opcode",
-        help="show pycdc unsupported opcode errors",
-        action="store_true",
-    )
-    parser.add_argument(
-        "--show-warn-stack",
-        help="show pycdc stack related warnings",
-        action="store_true",
-    )
-    parser.add_argument(
         "--concurrent",
-        help="number of concurrent handling processes (default: 4)",
+        help="Number of concurrent handling processes (default: 4).",
         type=int,
         default=4,
     )
     parser.add_argument(
         "-e",
         "--executable",
-        help="path to the pyarmor-1shot executable to use",
+        help="Path to the pyarmor-1shot executable to use. See README.md #Build and #Usage for details.",
         type=str,
     )
     parser.add_argument(
         "--no-banner",
-        help="do not show banner in console and output files",
+        help="Do not show banner in console and front-comments in output files. For testing or automation purposes.",
+        action="store_true",
+    )
+    parser.add_argument(
+        "--export-raw-data",
+        help="Save data found in source files as-is. For debugging or manual analysis purposes.",
+        action="store_true",
+    )
+    parser.add_argument(
+        "--unhide-all-noisy-logs",
+        help="Show all pycdc errors and warnings. The default-hidden logs are not helpful, not caused by this Pyarmor-unpack tool, and won't be fixed in this Pyarmor-unpack tool.",
+        action="store_true",
+    )
+    parser.add_argument(
+        "--unhide-unsupported-opcode-errors",
+        help="Show pycdc unsupported opcode errors. These logs indicate decompiling failure in some functions, but they are too noisy, not caused by this Pyarmor-unpack tool, and won't be fixed in this Pyarmor-unpack tool.",
+        action="store_true",
+    )
+    parser.add_argument(
+        "--unhide-stack-warnings",
+        help="Show pycdc stack related warnings. These logs are too noisy, not helpful, not caused by this Pyarmor-unpack tool, and won't be fixed in this Pyarmor-unpack tool.",
+        action="store_true",
+    )
+    parser.add_argument(
+        "-v",
+        "--version",
+        help="Show version information and then exit.",
         action="store_true",
     )
     return parser.parse_args()
 
 
 def main():
+    if "--version" in sys.argv or "-v" in sys.argv:
+        print(f"v{__version__}")
+        return
+
     args = parse_args()
     logging.basicConfig(
         level=logging.INFO,
@@ -483,7 +497,7 @@ def main():
  |  |  |_|    \_, |\__,_|_|  |_||_||_|\___/|_|   |_|___/|_||_|\___/ \__|  |  |
  |  |         |__/                                                        |  |
  |__|~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|__|
-(____)                                                        v0.3.0     (____)
+(____)                                                v{__version__:16}  (____)
 
               For technology exchange only. Use at your own risk.
         GitHub: https://github.com/Lil-House/Pyarmor-Static-Unpack-1shot
