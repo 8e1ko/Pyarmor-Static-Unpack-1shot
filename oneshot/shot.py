@@ -298,7 +298,7 @@ async def decrypt_process_async(
                         seq_file_path = dest_path + ".1shot.seq"
                         with open(seq_file_path, "wb") as f:
                             f.write(b"\xa1" + runtime.runtime_aes_key)
-                            f.write(b"\xa2" + runtime.mix_str_aes_nonce())
+                            f.write(b"\xa2" + runtime.mix_str_aes_nonce)
                             f.write(b"\xf0\xff")
                             f.write(remaining_data[:cipher_text_offset])
                             f.write(remaining_data_decrypted)
